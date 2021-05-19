@@ -153,9 +153,9 @@ app.post('/api/bank/deposit/:amount', (req, res) => {
 
         res.send(balance)
     } else if (req.params.amount > balance.walletBalance) {
-        res.status(403).send('You cannot deposit more than your wallet balance.')
+        res.send('You cannot deposit more than your wallet balance.')
     } else {
-        res.status(404).send('Please enter an integer.')
+        res.send('Please enter an integer.')
     }
 })
 
@@ -168,8 +168,8 @@ app.post('/api/bank/withdraw/:amount', (req, res) => {
 
         res.send(balance)
     } else if (req.params.amount > balance.bankBalance) {
-        res.status(403).send('You cannot withdraw more than your bank balance.')
+        res.send('You cannot withdraw more than your bank balance.')
     } else {
-        res.status(404).send('Please enter an integer.')
+        res.send('Please enter an integer.')
     }
 })
