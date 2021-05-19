@@ -9,8 +9,11 @@ const _ = require('lodash')
 const mysql = require('mysql')
 
 const bodyparser = require('body-parser')
+const { lowerFirst } = require('lodash')
 
 app.use(bodyparser.json())
+
+app.use(express.static('public'))
 
 const mysqlConnection = mysql.createConnection({
     host: 'localhost',
@@ -27,10 +30,10 @@ mysqlConnection.connect((err) => {
 
 app.listen(3000)
 
-let reqsMade = 0;
+let requests = 0;
 
 app.get('/api/random', (req, res) => {
-    reqsMade++
+    requests++
     // Generate a random number with Lodash: https://lodash.com/docs/4.17.15#random
     let number = { number: _.random(1023) }
     let data = JSON.stringify(number)
@@ -41,19 +44,27 @@ app.get('/api/random', (req, res) => {
 
 // How to use dynamic URLs with express: https://www.tutorialspoint.com/expressjs/expressjs_url_building.htm
 app.get('/api/custom_random/:num', (req, res) => {
-    reqsMade++
+    requests++
 
-    let number = { number: _.random(req.params.num) }
-    let data = JSON.stringify(number)
+    const regex = new RegExp(/-?\d+$/)
 
-    fs.writeFileSync('./public/custom_random.json', data)
+    if (regex.test(req.params.num)) {
+        let number = { number: _.random(req.params.num) }
+        let data = JSON.stringify(number)
 
-    res.sendFile('./public/custom_random.json', { root: './' })
+        fs.writeFileSync('./public/custom_random.json', data)
+
+        res.sendFile('./public/custom_random.json', { root: './' })
+
+    } else {
+        res.status(404).send('Invalid input. Please enter an integer.')
+    }
 })
 
 
-app.post('/vowels/:input', (req, res) => {
-    reqsMade++
+app.post('/api/vowels/:input', (req, res) => {
+    requests++
+    console.log('request made');
 
     let vowels = 0
 
@@ -66,37 +77,37 @@ app.post('/vowels/:input', (req, res) => {
     res.json({ vowels })
 })
 
-app.get('/usage', (req, res) => {
-    reqsMade++
-    res.send(`You've made ${reqsMade} ${reqsMade === 1 ? 'request' : 'requests'} this session (including this one).`)
+app.get('/api/usage', (req, res) => {
+    requests++
+    res.send({ requests })
 })
 
-app.get('/guestbook', (req, res) => {
-    reqsMade++
+app.get('/api/guestbook', (req, res) => {
+    requests++
     mysqlConnection.query('SELECT * FROM guestbook', (err, rows, fields) => {
         if (!err) res.send(rows)
         else console.log(err);
     })
 })
 
-app.get('/guestbook/:id', (req, res) => {
-    reqsMade++
+app.get('/api/guestbook/:id', (req, res) => {
+    requests++
     mysqlConnection.query('SELECT * FROM guestbook WHERE EntryID = ?', [req.params.id], (err, rows, fields) => {
-        if (!err) res.send(rows)
+        if (!err) res.send(rows[0])
         else console.log(err);
     })
 })
 
-app.delete('/guestbook/:id', (req, res) => {
-    reqsMade++
+app.delete('/api/guestbook/:id', (req, res) => {
+    requests++
     mysqlConnection.query('DELETE FROM guestbook WHERE EntryID = ?', [req.params.id], (err, rows, fields) => {
         if (!err) res.send('Deletion successful')
         else console.log(err);
     })
 })
 
-app.post('/guestbook', (req, res) => {
-    reqsMade++
+app.post('/api/guestbook', (req, res) => {
+    requests++
     let entry = req.body;
     const sql = "SET @EntryID = ?;SET @Name = ?;SET @Msg = ?; \
     CALL GuestbookAddOrEdit(@EntryID,@Name,@Msg);"
@@ -112,8 +123,8 @@ app.post('/guestbook', (req, res) => {
     })
 })
 
-app.put('/guestbook', (req, res) => {
-    reqsMade++
+app.put('/api/guestbook', (req, res) => {
+    requests++
     let entry = req.body;
     const sql = "SET @EntryID = ?;SET @Name = ?;SET @Msg = ?; \
     CALL GuestbookAddOrEdit(@EntryID,@Name,@Msg);"

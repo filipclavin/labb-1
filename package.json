@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "mocha --reporter spec",
+    "start": "nodemon app/server.js"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,13 @@
   },
   "homepage": "https://github.com/filipclavin/labb-1#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
+    "chai": "^4.3.4",
     "express": "^4.17.1",
     "lodash": "^4.17.21",
-    "mysql": "^2.18.1"
+    "mocha": "^8.4.0",
+    "mysql": "^2.18.1",
+    "request": "^2.88.2"
   }
 }
