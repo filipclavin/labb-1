@@ -74,7 +74,7 @@ app.post('/api/vowels/:input', (req, res) => {
         }
     }))
 
-    res.json({ vowels })
+    res.send({ vowels })
 })
 
 app.get('/api/usage', (req, res) => {
@@ -115,7 +115,7 @@ app.post('/api/guestbook', (req, res) => {
         if (!err) {
             rows.forEach(element => {
                 if (element.constructor == Array) {
-                    res.json(element[0])
+                    res.send(element[0])
                 }
             });
         }
@@ -132,4 +132,44 @@ app.put('/api/guestbook', (req, res) => {
         if (!err) res.send('Update successful')
         else console.log(err);
     })
+})
+
+const balance = {
+    bankBalance: 1000,
+    walletBalance: 200
+}
+
+app.get('/api/bank/balance', (req, res) => {
+    requests++
+    res.send(balance)
+})
+
+app.post('/api/bank/deposit/:amount', (req, res) => {
+    const regex = new RegExp(/-?\d+$/)
+
+    if (req.params.amount <= balance.walletBalance && regex.test(req.params.amount)) {
+        balance.walletBalance -= _.toNumber(req.params.amount)
+        balance.bankBalance += _.toNumber(req.params.amount)
+
+        res.send(balance)
+    } else if (req.params.amount > balance.walletBalance) {
+        res.status(403).send('You cannot deposit more than your wallet balance.')
+    } else {
+        res.status(404).send('Please enter an integer.')
+    }
+})
+
+app.post('/api/bank/withdraw/:amount', (req, res) => {
+    const regex = new RegExp(/-?\d+$/)
+
+    if (req.params.amount <= balance.bankBalance && regex.test(req.params.amount)) {
+        balance.bankBalance -= _.toNumber(req.params.amount)
+        balance.walletBalance += _.toNumber(req.params.amount)
+
+        res.send(balance)
+    } else if (req.params.amount > balance.bankBalance) {
+        res.status(403).send('You cannot withdraw more than your bank balance.')
+    } else {
+        res.status(404).send('Please enter an integer.')
+    }
 })
