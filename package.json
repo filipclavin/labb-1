@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/filipclavin/labb-1#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1"
   }
 }
