@@ -273,6 +273,9 @@ describe('Guestbook', () => {
 })
 
 describe('Bank', () => {
+
+    let oldBalance
+
     describe('Balance', () => {
         let url = 'http://localhost:3000/api/bank/balance'
 
@@ -334,6 +337,15 @@ describe('Bank', () => {
         it('returns bank account balance and wallet balance', (done) => {
             request.post(url, (error, response, body) => {
                 expect(JSON.parse(response.body)).to.have.all.keys('bankBalance', 'walletBalance')
+                oldBalance = JSON.parse(response.body)
+                done()
+            })
+        })
+
+        it('transfers money from wallet to bank', (done) => {
+            request.post(url, (error, response, body) => {
+                expect(JSON.parse(response.body).walletBalance).to.equal(oldBalance.walletBalance - 5)
+                expect(JSON.parse(response.body).bankBalance).to.equal(oldBalance.bankBalance + 5)
                 done()
             })
         })
@@ -375,6 +387,15 @@ describe('Bank', () => {
         it('returns bank account balance and wallet balance', (done) => {
             request.post(url, (error, response, body) => {
                 expect(JSON.parse(response.body)).to.have.all.keys('bankBalance', 'walletBalance')
+                oldBalance = JSON.parse(response.body)
+                done()
+            })
+        })
+
+        it('transfers money from bank to wallet', (done) => {
+            request.post(url, (error, response, body) => {
+                expect(JSON.parse(response.body).bankBalance).to.equal(oldBalance.bankBalance - 5)
+                expect(JSON.parse(response.body).walletBalance).to.equal(oldBalance.walletBalance + 5)
                 done()
             })
         })
